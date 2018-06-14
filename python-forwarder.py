@@ -1,16 +1,21 @@
 #! /usr/bin/env python
 import socket
 import sys
-import _thread
+from threading import Thread
 import errno
 from time import sleep
 
 def main(setup):
+    threads = []
     for settings in parse(setup):
-        _thread.start_new_thread(server, settings)
-    lock = _thread.allocate_lock()
-    lock.acquire()
-    lock.acquire()
+        try:
+            thread = Thread(target=server, args=settings)
+            thread.start()
+        except Exception as err:
+            print(err)
+    for thread in threads:
+        thread.join()
+    print('Quitting')
 
 def parse(setup):
     settings = list()
